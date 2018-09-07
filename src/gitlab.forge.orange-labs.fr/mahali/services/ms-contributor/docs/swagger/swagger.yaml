@@ -1,0 +1,249 @@
+definitions:
+  api.Result:
+    properties:
+      items:
+        type: object
+      limit:
+        type: integer
+      offset:
+        type: integer
+      sort:
+        type: string
+      total:
+        type: integer
+    type: object
+  errors.Error:
+    properties:
+      code:
+        type: integer
+      detail:
+        type: string
+      id:
+        type: string
+      status:
+        type: string
+    type: object
+  proto.JWT:
+    properties:
+      expires_at:
+        type: integer
+      token:
+        type: string
+    type: object
+  proto.User:
+    properties:
+      email_address:
+        type: string
+      firstname:
+        type: string
+      id:
+        type: string
+      lastname:
+        type: string
+      locale:
+        type: string
+      phone_number:
+        type: string
+      picture:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Mahali Service API definition
+  license: {}
+  title: Mahali API
+  version: "1.0"
+paths:
+  /authentication/{provider}:
+    post:
+      consumes:
+      - application/json
+      description: '<div>Creates a new JWT token to be used in headers as follow:<br/><pre>Authorization
+        : Bearer {JWT_Token}</pre><br/>The authentication <b>provider</b> is set directly
+        in path.   The model of <b>credentials</b> sent in body is based on selected
+        <b>provider</b>:<ul><li><i>local</i> : uses the localy stored credentials
+        in Mahali service:</li></ul><pre>{<br/>&nbsp;&nbsp;"username" : {username},<br/>&nbsp;&nbsp;"password"
+        : {password}<br/>}</pre></div>'
+      parameters:
+      - description: 'Provider used for authentication (ex : local, google, facebook
+          ...)'
+        in: path
+        name: provider
+        required: true
+        type: string
+      - description: Depends on provider, see description above for details
+        in: body
+        name: credentials
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/proto.JWT'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.Error'
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.Error'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.Error'
+            type: object
+      summary: Authenticate client based on given provider and credentials
+      tags:
+      - authentication
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: <div>By default, without any parameters the full users paginated
+        list is returned.<br/><br/>Search can be done using criterias directly in
+        the query, in that case, a AND operator is applied:<pre>/users?role=admin&local=fr</pre><br/>For
+        advanced search, the Mongo Query format is used, see <a href="https://docs.mongodb.com/manual/tutorial/query-documents/">here</a>
+        for details:<pre>/users?query={"$or":[{"role":"admin},{"role":"user"}]}</pre></div>
+      parameters:
+      - description: The result list start offset
+        in: query
+        name: offset
+        type: integer
+      - description: The result size limit
+        in: query
+        name: limit
+        type: integer
+      - description: 'The criteria used for sorting (ex: username), prefix with minus
+          for reverse order (ex: -username)'
+        in: query
+        name: sort
+        type: string
+      - description: The query for custom search (see description for details)
+        in: query
+        name: query
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.Error'
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.Error'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.Error'
+            type: object
+      security:
+      - ApiJWT: []
+      summary: Get a list of users
+      tags:
+      - users
+  /users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a user from her <b>id</b>. This API can be used to retrieve
+        the current user's profile by using <i>me</i> parameter as <b>id</b>.
+      parameters:
+      - description: The user's ID, set to 'me' for current connected user
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/proto.User'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.Error'
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.Error'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.Error'
+            type: object
+      security:
+      - ApiJWT: []
+      summary: Get a user from her ID
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update a user from her <b>id</b>. Only current connected user can
+        be updated if not admin.
+      parameters:
+      - description: The user's ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/proto.User'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.Error'
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.Error'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.Error'
+            type: object
+      security:
+      - ApiJWT: []
+      summary: Update a user from her ID
+      tags:
+      - users
+securityDefinitions:
+  ApiJWT:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

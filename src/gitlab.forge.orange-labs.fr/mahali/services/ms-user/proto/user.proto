@@ -1,0 +1,52 @@
+syntax = "proto3";
+package proto;
+
+import "google/protobuf/empty.proto";
+
+message Id {
+    string value = 1;
+}
+
+message User {
+    // @inject_tag: bson:"_id,omitempty"
+    string id = 1;
+    // @inject_tag: bson:"username,omitempty"
+    string username = 2;
+    // @inject_tag: bson:"phone_number,omitempty"
+	string phone_number = 3;
+	// @inject_tag: bson:"email_address,omitempty"
+	string email_address = 4;
+	// @inject_tag: bson:"firstname,omitempty"
+	string firstname = 5;
+	// @inject_tag: bson:"lastname,omitempty"
+	string lastname = 6;
+    // @inject_tag: bson:"locale,omitempty"
+    string locale = 7;
+    // @inject_tag: bson:"role,omitempty"
+    string role = 8;
+    // @inject_tag: bson:"picture,omitempty"
+    string picture = 9;
+}
+
+message Query {
+    int32 offset = 1;
+    int32 limit = 2;
+    string sort = 3;
+    string filter = 4;
+}
+
+message Result {
+    int32 total = 1;
+    int32 offset = 2;
+    int32 limit = 3;
+    string sort = 4;
+    repeated User items = 5;
+}
+
+service UserService {
+    rpc Create(User) returns (User) {}
+    rpc Get(Id) returns (User) {}
+    rpc Find(Query) returns (Result) {}
+    rpc Update(User) returns (User) {}
+    rpc Delete(Id) returns (google.protobuf.Empty) {}
+}

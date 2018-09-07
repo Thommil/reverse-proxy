@@ -1,0 +1,23 @@
+syntax = "proto3";
+package proto;
+
+import "gitlab.forge.orange-labs.fr/mahali/services/ms-user/proto/user.proto";
+
+message AuthenticateRequest {
+    string provider = 1;
+    map<string, string> credentials = 2;
+}
+
+message JWT {
+    string token = 1;
+    int64 expires_at = 2;
+}
+
+message Token {
+    string value = 1;
+}
+
+service AuthenticationService {
+    rpc Authenticate(AuthenticateRequest) returns (JWT) {}
+    rpc Validate(Token) returns (User) {}
+}
