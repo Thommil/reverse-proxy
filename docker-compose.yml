@@ -20,10 +20,9 @@ services:
     depends_on:
       - "ms-authentication"
       - "ms-user"
-      - "mongo"
     build : 
-      context: "./src/gitlab.forge.orange-labs.fr/mahali/services/ms-contributor"
-      dockerfile: "Dockerfile"
+      context: "."
+      dockerfile: "./src/gitlab.forge.orange-labs.fr/mahali/services/ms-contributor/Dockerfile"
     environment:
       GIN_MODE: "debug"
     ports:
@@ -35,10 +34,9 @@ services:
     image: "ms-authentication"
     depends_on:
       - "ms-user"
-      - "mongo"
     build : 
-      context: "./src/gitlab.forge.orange-labs.fr/mahali/services/ms-authentication"
-      dockerfile: "Dockerfile"
+      context: "."
+      dockerfile: "./src/gitlab.forge.orange-labs.fr/mahali/services/ms-authentication/Dockerfile"
     environment:
       GIN_MODE: "debug"
     ports:
@@ -48,19 +46,10 @@ services:
   ms-user:
     container_name: "ms-user"
     image: "ms-user"
-    depends_on:
-      - "mongo"
     build : 
-      context: "./src/gitlab.forge.orange-labs.fr/mahali/services/ms-user"
-      dockerfile: "Dockerfile"
+      context: "."
+      dockerfile: "./src/gitlab.forge.orange-labs.fr/mahali/services/ms-user/Dockerfile"
     environment:
       GIN_MODE: "debug"
     ports:
       - "8002:8000"
-
-  #MongoDB
-  mongo:
-    container_name: "mongo"
-    image: "mongo:latest"
-    ports:
-      - "27017:27017"
